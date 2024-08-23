@@ -72,24 +72,3 @@ class ArbitrageBot:
         # Step 4: Transfer USDT to Uniswap to get WETH
         transfer_tx_hash = self.transfer_from(self.usdt_contract, self.wallet_address, uniswap_address, usdt_balance)
         print(f"Transferred {usdt_balance} USDT to Uniswap. Transaction hash: {transfer_tx_hash}")
-
-if __name__ == "__main__":
-    infura_url = "https://mainnet.infura.io/v3/43c7ce7ab6d34d83b755b2bcbb5314fe"  # Replace with your Infura URL
-    web3 = Web3(Web3.HTTPProvider(infura_url))
-
-    weth_address = Web3.to_checksum_address("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2")  # WETH Contract Address
-    usdt_address = Web3.to_checksum_address("0xdac17f958d2ee523a2206206994597c13d831ec7")  # USDT Contract Address
-
-    # Load the ABI files
-    with open('erc20.json', 'r') as file:
-        token_abi = json.load(file)
-
-    weth_contract = web3.eth.contract(address=weth_address, abi=token_abi)
-    usdt_contract = web3.eth.contract(address=usdt_address, abi=token_abi)
-
-    private_key = "af40d562b85cf51a7793ae35040ffb3b172fa24d2a3dca18d0afffa553faae43"  # Replace with your private key
-
-    bot = ArbitrageBot(web3, weth_contract, usdt_contract, private_key)
-    weth_amount = web3.to_wei(0.001, 'ether')  # Replace with the amount of WETH you want to use
-    bot.execute_arbitrage(weth_amount)
-
