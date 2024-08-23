@@ -24,6 +24,10 @@ sushiswap_pair_address = "0x06da0fd433C1A5d7a4faa01111c044910A184553"  # WETH/US
 uniswap_pair_address = to_checksum_address(uniswap_pair_address)
 sushiswap_pair_address = to_checksum_address(sushiswap_pair_address)
 
+# WETH and USDT contract 
+weth_address = Web3.to_checksum_address("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2")
+usdt_address = Web3.to_checksum_address("0xdac17f958d2ee523a2206206994597c13d831ec7")
+
 # Private key
 private_key = "af40d562b85cf51a7793ae35040ffb3b172fa24d2a3dca18d0afffa553faae43"
 
@@ -53,6 +57,10 @@ aave_lending = AaveV3Lending(
         lending_pool_address=lending_pool_address,
         aave_v3_abi_path=aave_v3_abi_path
     )
+
+# Load the ERC20 ABI file
+with open('erc20.json', 'r') as file:
+    token_abi = json.load(file)
 
 # Minimal ABI for Uniswap V2 Pair contract, only including methods used
 pair_abi = [
@@ -90,36 +98,19 @@ pair_abi = [
 ]
 
 # Minimal ABI for ERC20 token contract, only including methods used
-erc20_token_abi = [
-    {
-        "constant": True,
-        "inputs": [],
-        "name": "decimals",
-        "outputs": [{"internalType": "uint8", "name": "", "type": "uint8"}],
-        "payable": False,
-        "stateMutability": "view",
-        "type": "function",
-    },
-    {
-        "constant": True,
-        "inputs": [],
-        "name": "name",
-        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
-        "payable": False,
-        "stateMutability": "view",
-        "type": "function",
-    },
-    {
-        "constant": True,
-        "inputs": [],
-        "name": "symbol",
-        "outputs": [{"internalType": "string", "name": "", "type": "string"}],
-        "payable": False,
-        "stateMutability": "view",
-        "type": "function",
-    },
-]
+erc20_token_abi = token_abi
 
+# Function to run a swap
+def run_swap(weth_address, token_abi, usdt_address, private_key):
+    weth_contract = web3.eth.contract(address=weth_address, abi=token_abi)
+    usdt_contract = web3.eth.contract(address=usdt_address, abi=token_abi)
+    
+    bot = ArbitrageBot(web3, weth_contract, usdt_contract, private_key)
+    weth_amount = web3.to_wei(2, 'ether')# Replace with the amount of WETH you want to use
+    try:
+        bot.execute_arbitrage(weth_amount)
+    except Exception as e:
+        print(f"An error occured: {e}")
 
 # Function to fetch token data
 def fetch_token_data(pair_contract):
@@ -188,14 +179,14 @@ while True:
         	
         	# 1. Take loan from aavev3
         	borrow_tx_hash = aave_lending.borrow('0xC02aaA39b223FE8D0A0e5C4c7eE8e1F2e2372F3', amount, 1)
-   		print(f'Borrow Transaction Hash: {borrow_tx_hash}')
-   		 
-   		 # 2. Execute Swap with borrowed fee
-   		 
-   		 
-   		 # 3. Repay it back
-   		 repay_tx_hash = aave_lending.repay(asset_address, borrow_amount)
-    		 print(f'Repay Transaction Hash: {repay_tx_hash}')
+   		    print(f'Borrow Transaction Hash: {borrow_tx_hash}')
+            
+            # 2. Execute Swap with borrowed fee
+            run_swap(weth_address, erc20_token_abi, usdt_address, private_key)
+        
+            # 3. Repay it back
+            repay_tx_hash = aave_lending.repay(asset_address, borrow_amount)
+            print(f'Repay Transaction Hash: {repay_tx_hash}')
 
         	
         	# Print the transaction hash
