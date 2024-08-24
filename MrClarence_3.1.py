@@ -16,6 +16,10 @@ w3 = Web3(
     )
 )
 
+# Initialize the WMA calculator with your desired weights
+weights = [0.1, 0.2, 0.3, 0.4]  # Example weights, feel free to tweak until perfect
+wma_calculator = RealTimePandasWMA(weights)
+
 # Pair contract addresses for Uniswap V2 and SushiSwap
 uniswap_pair_address = "0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852"  # WETH/USDT on Uniswap V2
 sushiswap_pair_address = "0x06da0fd433C1A5d7a4faa01111c044910A184553"  # WETH/USDT on SushiSwap
@@ -165,6 +169,10 @@ while True:
         uniswap_data = fetch_token_data(uniswap_pair_contract)
         sushiswap_data = fetch_token_data(sushiswap_pair_contract)
 
+        # Add a Weighted moving average for WETH sentiment detection
+        # Add the Uniswap data point to the WMA calculator
+        wma, change = wma_calculator.add_data_point(uniswap_data['price1_in_terms_of_0'])
+        
         # Print the results
         print("Uniswap V2 Prices:")
         print(f"Price of 1 {uniswap_data['name0']} ({uniswap_data['symbol0']}) in {uniswap_data['name1']} ({uniswap_data['symbol1']}): {uniswap_data['price1_in_terms_of_0']}")
@@ -174,9 +182,10 @@ while True:
         print(f"Price of 1 {sushiswap_data['name0']} ({sushiswap_data['symbol0']}) in {sushiswap_data['name1']} ({sushiswap_data['symbol1']}): {sushiswap_data['price1_in_terms_of_0']}")
         print(f"Price of 1 {sushiswap_data['name1']} ({sushiswap_data['symbol1']}) in {sushiswap_data['name0']} ({sushiswap_data['symbol0']}): {sushiswap_data['price0_in_terms_of_1']}")
         
-        if (uniswap_data['price1_in_terms_of_0'] - sushiswap_data['price1_in_terms_of_0']) > threshold :
+        if (uniswap_data['price1_in_terms_of_0'] - sushiswap_data['price1_in_terms_of_0']) > threshold and change > 0 :
         	print(f"\n\nAn arbitrage of {uniswap_data['price1_in_terms_of_0'] - sushiswap_data['price1_in_terms_of_0']} detected !\n")
-        	
+        	print(f"Bullish sentiment detected !")
+            
         	# 1. Take loan from aavev3
         	borrow_tx_hash = aave_lending.borrow('0xC02aaA39b223FE8D0A0e5C4c7eE8e1F2e2372F3', amount, 1)
    		    print(f'Borrow Transaction Hash: {borrow_tx_hash}')
@@ -193,6 +202,7 @@ while True:
         	print(f"Arbitrage executed. Transaction hash: {txn_hash}")
         else:
         	print(f"\n\nNo arbitrage detected !\n")
+            print(f"Bearish and or neutral sentiment detected !\n")
         	print(f"Price difference less than ${threshold}")
         # Sleep for a specified interval before fetching the data again
         time.sleep(10)  # Adjust the sleep time as needed (e.g., 60 seconds)
