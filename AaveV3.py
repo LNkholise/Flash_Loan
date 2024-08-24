@@ -83,46 +83,9 @@ class AaveV3Lending:
         return self.w3.to_hex(tx_hash)
 
     def _erc20_abi(self):
-        # Minimal ABI for ERC20 token
-        return [
-            {
-                "constant": True,
-                "inputs": [],
-                "name": "decimals",
-                "outputs": [{"internalType": "uint8", "name": "", "type": "uint8"}],
-                "payable": False,
-                "stateMutability": "view",
-                "type": "function",
-            },
-            {
-                "constant": True,
-                "inputs": [],
-                "name": "name",
-                "outputs": [{"internalType": "string", "name": "", "type": "string"}],
-                "payable": False,
-                "stateMutability": "view",
-                "type": "function",
-            },
-            {
-                "constant": True,
-                "inputs": [],
-                "name": "symbol",
-                "outputs": [{"internalType": "string", "name": "", "type": "string"}],
-                "payable": False,
-                "stateMutability": "view",
-                "type": "function",
-            },
-            {
-                "constant": False,
-                "inputs": [
-                    {"internalType": "address", "name": "spender", "type": "address"},
-                    {"internalType": "uint256", "name": "amount", "type": "uint256"}
-                ],
-                "name": "approve",
-                "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-                "payable": False,
-                "stateMutability": "nonpayable",
-                "type": "function",
-            }
-        ]
+        # Load the ERC20 ABI file
+        with open('erc20.json', 'r') as file:
+            token_abi = json.load(file)
+            
+        return token_abi
 
