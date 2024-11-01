@@ -1,1 +1,9 @@
+# Specify Python version
+python_version >= "3.9"
+
+# Required packages
+web3==6.2.0
+eth-utils==1.10.0
+eth-account==0.5.9
+pandas>=1.3.0  # required for RealTimePandasWMA if using pandas
 
