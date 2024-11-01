@@ -30,7 +30,7 @@ This project is designed for real-time arbitrage trading and interactions with E
 ## Configure 
 
 1. **Ethereum Node provider setup**
-
+ -refer to infura.io to set an instance of the infura node for connecting to the Ethereum node(s) : 
    ```bash
     PROVIDER_URL="https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID"
    PRIVATE_KEY="your_private_key"
