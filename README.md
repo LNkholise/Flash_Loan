@@ -13,7 +13,7 @@ This project is designed for real-time arbitrage trading and interactions with E
 
    ```bash
    git clone https://github.com/your-username/Flash_Loan.git
-   cd project-name
+   cd Flsh_Loan
    
 2. **Create a Virtual Environment**
 
