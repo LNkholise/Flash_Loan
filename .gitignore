@@ -1,0 +1,13 @@
+# Ignore .env file
+.env
+
+# Python bytecode
+*.pyc
+
+# IDE-specific files (e.g., VSCode, JetBrains)
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
