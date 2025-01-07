@@ -3,12 +3,23 @@ from eth_utils import to_checksum_address
 from eth_account import Account
 import time
 import json
+import os
+from dotenv import load_dotenv
 from Swap import ArbitrageBot
 from AaveV3 import AaveV3Lending
 from WMA import RealTimePandasWMA
 
-# Infura URL for connecting to the Ethereum mainnet
-infura_url = "https://mainnet.infura.io/v3/43c7ce7ab6d34d83b755b2bcbb5314fe"
+# Load environment variables from .env file
+load_dotenv()
+
+# Fetch values from environment variables
+infura_url = os.getenv("INFURA_URL")
+uniswap_pair_address = to_checksum_address(os.getenv("UNISWAP_PAIR_ADDRESS"))
+sushiswap_pair_address = to_checksum_address(os.getenv("SUSHISWAP_PAIR_ADDRESS"))
+weth_address = to_checksum_address(os.getenv("WETH_ADDRESS"))
+usdt_address = to_checksum_address(os.getenv("USDT_ADDRESS"))
+private_key = os.getenv("PRIVATE_KEY")
+lending_pool_address = os.getenv("LENDING_POOL_ADDRESS")
 
 # Initialize Web3
 w3 = Web3(Web3.HTTPProvider(infura_url))
@@ -17,22 +28,8 @@ w3 = Web3(Web3.HTTPProvider(infura_url))
 weights = [0.1, 0.2, 0.3, 0.4]  # Example weights, feel free to tweak until perfect
 wma_calculator = RealTimePandasWMA(weights)
 
-# Convert pair contract addresses to checksum format
-uniswap_pair_address = to_checksum_address("0x0d4a11d5eeaac28ec3f61d100daf4d40471f1852")  # WETH/USDT on Uniswap V2
-sushiswap_pair_address = to_checksum_address("0x06da0fd433C1A5d7a4faa01111c044910A184553")  # WETH/USDT on SushiSwap
-
-# WETH and USDT contract addresses
-weth_address = to_checksum_address("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2")
-usdt_address = to_checksum_address("0xdac17f958d2ee523a2206206994597c13d831ec7")
-
-# Private key for signing transactions
-private_key = "af40d562b85cf51a7793ae35040ffb3b172fa24d2a3dca18d0afffa553faae43"
-
 # Create an account object from the private key
 account = Account.from_key(private_key)
-
-# Lending pool address
-lending_pool_address = "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
 
 # Set the default account for Web3 transactions
 w3.eth.default_account = account.address
